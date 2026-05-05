@@ -1,59 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import PolyaGraph from '@/components/PolyaGraph.vue'
+import SubsetDisplay from '@/components/SubsetDisplay.vue'
+import { ref } from 'vue'
 
-/** Referência ao input nativo (valor não está em nenhum ref reativo). */
-const nInputEl = ref<HTMLInputElement | null>(null)
+const nVerticesInput = ref<HTMLInputElement | null>(null)
+const N = ref(5)
 
-/** Vértices: 1 .. n após clicar em aplicar. */
-const P = ref<number[]>([1, 2, 3, 4])
-
-const subsetParVertices = ref<[number, number][]>([])
-
-function buildSubsetParVertices() {
-  const items = P.value
-  const pairs: [number, number][] = []
-  for (let i = 0; i < items.length; i++) {
-    for (let j = i + 1; j < items.length; j++) {
-      const a = items[i]!
-      const b = items[j]!
-      pairs.push([a, b])
-    }
-  }
-  subsetParVertices.value = pairs
+const apply = () => {
+  const raw = nVerticesInput.value?.value
+  const parsed = raw === undefined || raw === '' ? NaN : Number(raw)
+  if (!Number.isFinite(parsed) || parsed < 1) return
+  N.value = Math.floor(parsed)
 }
-
-function applyNAndRebuild() {
-  const raw = nInputEl.value?.value
-  const n = raw === undefined || raw === '' ? NaN : Number(raw)
-  if (!Number.isFinite(n) || n < 1) return
-  const max = Math.floor(n)
-  P.value = Array.from({ length: max }, (_, i) => i + 1)
-  buildSubsetParVertices()
-}
-
-onMounted(() => {
-  buildSubsetParVertices()
-})
 </script>
 
 <template>
   <main class="polia-demo">
     <h1>Polia — demonstração</h1>
+    <SubsetDisplay :N="N" />
     <div class="controls">
       <label>
         N (1 … N)
-        <input
-          ref="nInputEl"
-          type="number"
-          min="1"
-          step="1"
-          placeholder="ex.: 5"
-        />
+        <input ref="nVerticesInput" type="number" min="1" step="1" placeholder="ex.: 5" />
       </label>
-      <button type="button" @click="applyNAndRebuild">Aplicar</button>
+      <button type="button" @click="apply">Aplicar</button>
     </div>
-    <p>P = {{ P }}</p>
-    <p>Subconjuntos (pares): {{ subsetParVertices }}</p>
+
+    <PolyaGraph :n="N" />
   </main>
 </template>
 
