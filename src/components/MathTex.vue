@@ -22,6 +22,8 @@ const html = computed(() =>
 </script>
 
 <template>
+  <!-- O HTML vem do KaTeX, a partir de expressões escritas no próprio código. -->
+  <!-- eslint-disable-next-line vue/no-v-html -->
   <span class="math-tex" v-html="html"></span>
 </template>
 

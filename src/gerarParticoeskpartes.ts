@@ -22,11 +22,7 @@ export interface Particao {
  * Captura o estado atual (`alfa`, `lamb`) das `r` primeiras entradas de
  * `p`/`m` como uma nova partição imutável.
  */
-const registrarParticao = (
-  p: number[],
-  m: number[],
-  r: number,
-): Particao => {
+const registrarParticao = (p: number[], m: number[], r: number): Particao => {
   const alfa: number[] = []
   const lamb: number[] = []
   for (let i = 0; i < r; i++) {
@@ -132,9 +128,7 @@ export const formatarParticao = (particao: Particao): string =>
  * Ex.: `{ alfa: [6, 3], lamb: [2, 10] }` -> `"X_{6}^{2}\\,X_{3}^{10}"`.
  */
 export const formatarParticaoLatex = (particao: Particao): string =>
-  particao.alfa
-    .map((parte, i) => `X_{${parte}}^{${particao.lamb[i]}}`)
-    .join('\\,')
+  particao.alfa.map((parte, i) => `X_{${parte}}^{${particao.lamb[i]}}`).join('\\,')
 
 /**
  * A partição escrita como soma das suas partes, em LaTeX.
@@ -184,10 +178,7 @@ export const expandirPartes = (particao: Particao): ParicionExpanded => {
  *
  * Geradores não podem ser arrow functions; daí a expressão `function*`.
  */
-export const permutacoesR = function* (
-  arr: number[],
-  r: number,
-): Generator<number[]> {
+export const permutacoesR = function* (arr: number[], r: number): Generator<number[]> {
   if (r === 0) {
     yield []
     return
@@ -216,13 +207,9 @@ export const permutacoesR = function* (
  * folha: nenhum trabalho desperdiçado. O total gerado é
  * `n! / prod(k^j_k * j_k!)`.
  */
-export const permsDoTipo = function* (
-  n: number,
-  tipo: ParicionExpanded,
-): Generator<number[][]> {
+export const permsDoTipo = function* (n: number, tipo: ParicionExpanded): Generator<number[][]> {
   const soma = tipo.reduce((a, b) => a + b, 0)
-  if (soma !== n)
-    throw new RangeError(`tipo [${tipo}] soma ${soma}, esperado ${n}`)
+  if (soma !== n) throw new RangeError(`tipo [${tipo}] soma ${soma}, esperado ${n}`)
   if (tipo.some((k) => !Number.isInteger(k) || k < 1))
     throw new RangeError(`tipo [${tipo}] deve conter inteiros >= 1`)
 
@@ -254,7 +241,11 @@ export const permsDoTipo = function* (
     }
   }
 
-  yield* rec(Array.from({ length: n }, (_, i) => i + 1), tipo.slice(), [])
+  yield* rec(
+    Array.from({ length: n }, (_, i) => i + 1),
+    tipo.slice(),
+    [],
+  )
 }
 
 /** Formata ciclos como "(1 2)(3 4)". */
@@ -268,10 +259,7 @@ export const formatarBlocos = (blocos: number[][]): string =>
  * Casca fina sobre `permsDoTipo` — ver lá as duas regras que garantem que cada
  * permutação sai exatamente uma vez, sem deduplicação posterior.
  */
-export const gerarConfiguracoesUnicas = (
-  n: number,
-  partes: ParicionExpanded,
-): string[] => {
+export const gerarConfiguracoesUnicas = (n: number, partes: ParicionExpanded): string[] => {
   if (n < 1 || partes.length === 0) return []
 
   const configuracoes: string[] = []
