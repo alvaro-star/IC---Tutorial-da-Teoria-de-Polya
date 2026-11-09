@@ -22,6 +22,7 @@ import {
   formatarConjuntoDeArestasLatex,
   formatarProdutoLatex,
   formatarDuasLinhasLatex,
+  formatarImagensDaArestaLatex,
   formatarSomaLatex,
   formatarTipoCiclicoLatex,
 } from '@/combinatoria/formatadores'
@@ -224,9 +225,11 @@ const definicao = String.raw`\sigma^{*}(\{i,j\}) = \{\sigma(i),\, \sigma(j)\}`
       <p v-if="totalDeArestas === 0" class="nota">Com um único vértice não há arestas.</p>
       <template v-else>
         <p>
-          Para cada aresta <MathTex expr="\{i,j\}" />, troca-se cada extremo pela sua imagem. Como a
-          aresta é um conjunto, <MathTex expr="\{3,1\} = \{1,3\}" />: o resultado escreve-se com o
-          menor elemento primeiro.
+          Para cada aresta <MathTex expr="\{i,j\}" />, troca-se cada extremo pela sua imagem
+          <MathTex expr="\sigma(i)" />, lida no passo 1 — por exemplo
+          <MathTex expr="\sigma(1) = 2" /> quer dizer que o 1 vai para o 2. Como a aresta é um
+          conjunto, <MathTex expr="\{3,1\} = \{1,3\}" />: o resultado escreve-se com o menor
+          elemento primeiro.
         </p>
         <div class="tabela-rolagem">
           <table class="tabela">
@@ -244,7 +247,9 @@ const definicao = String.raw`\sigma^{*}(\{i,j\}) = \{\sigma(i),\, \sigma(j)\}`
                 :class="{ fixa: linha.fixa }"
               >
                 <td><MathTex :expr="formatarArestaLatex(linha.aresta)" /></td>
-                <td><MathTex :expr="formatarArestaLatex(linha.imagens)" /></td>
+                <td>
+                  <MathTex :expr="formatarImagensDaArestaLatex(linha.aresta, linha.imagens)" />
+                </td>
                 <td>
                   <MathTex :expr="formatarArestaLatex(linha.imagem)" />
                   <span v-if="linha.fixa" class="marca-fixa">fixa</span>

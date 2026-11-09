@@ -6,6 +6,7 @@ import { contarPermutacoesDoTipo } from '@/combinatoria/contarPermutacoesDoTipo'
 import { contarParticoes } from '@/combinatoria/contarParticoes'
 import {
   formatarBlocos,
+  formatarImagensDaArestaLatex,
   formatarParticao,
   formatarParticaoLatex,
   formatarSomaLatex,
@@ -100,6 +101,12 @@ describe('formatadores', () => {
     for (const p of gerarParticoesKPartes(8, 8)) {
       expect(formatarSomaLatex(p)).toBe(expandirPartes(p).join(' + '))
     }
+  })
+
+  it('escrevem a aplicação de σ aos extremos com a notação σ(i)', () => {
+    expect(formatarImagensDaArestaLatex([1, 3], [2, 4])).toBe(
+      String.raw`\{\sigma(1),\,\sigma(3)\} = \{2,\,4\}`,
+    )
   })
 
   it('formatam ciclos sem separador', () => {

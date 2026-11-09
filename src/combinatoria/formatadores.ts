@@ -89,3 +89,13 @@ export const formatarConjuntoDeArestasLatex = (arestas: [number, number][]): str
 
 /** Um produto de monómios: `["X_1", "X_3"]` -> `"X_1 \cdot X_3"`. */
 export const formatarProdutoLatex = (fatores: string[]): string => fatores.join(String.raw` \cdot `)
+
+/**
+ * A aplicação de σ aos dois extremos de uma aresta, com o resultado:
+ * ([1, 3], [2, 4]) -> `\{\sigma(1),\,\sigma(3)\} = \{2,\,4\}`. A notação σ(i)
+ * deixa claro que cada número da direita é a imagem do extremo por σ.
+ */
+export const formatarImagensDaArestaLatex = (
+  [i, j]: readonly [number, number],
+  imagens: readonly [number, number],
+): string => String.raw`\{\sigma(${i}),\,\sigma(${j})\} = ${formatarArestaLatex(imagens)}`
