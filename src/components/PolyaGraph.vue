@@ -11,6 +11,10 @@ import { paresDe, verticesDe } from '@/combinatoria/pares'
  * comportamento original. Com `arestas`, desenha exatamente as que forem
  * passadas; nesse caso, com `direcionado`, cada par `[a, b]` é lido como a
  * aresta orientada a -> b e ganha uma seta na ponta.
+ *
+ * `rotulos` troca os números 1..n por outro texto (o grafo de σ* usa "1,2",
+ * "1,3", … porque os seus vértices são arestas de K_n); `cor` distingue os
+ * dois grafos: azul para σ sobre os vértices, laranja para σ* sobre as arestas.
  */
 const props = withDefaults(
   defineProps<{
@@ -23,8 +27,19 @@ const props = withDefaults(
     raio?: number
     /** Altura da caixa do grafo, em CSS. */
     altura?: string
+    /** Rótulo de cada vértice (o vértice v usa `rotulos[v - 1]`); por omissão, o número. */
+    rotulos?: string[]
+    /** `azul` (σ, por omissão) ou `laranja` (σ*). */
+    cor?: 'azul' | 'laranja'
   }>(),
-  { arestas: undefined, direcionado: false, raio: 150, altura: '400px' },
+  {
+    arestas: undefined,
+    direcionado: false,
+    raio: 150,
+    altura: '400px',
+    rotulos: undefined,
+    cor: 'azul',
+  },
 )
 
 const vertices = computed(() => verticesDe(props.n))
@@ -35,7 +50,7 @@ const pairs = computed(() => props.arestas ?? paresDe(props.n))
 const nodes = computed(() => {
   const result: Record<string, { name: string }> = {}
   for (const v of vertices.value) {
-    result[`v${v}`] = { name: String(v) }
+    result[`v${v}`] = { name: props.rotulos?.[v - 1] ?? String(v) }
   }
   return result
 })
@@ -67,22 +82,29 @@ const layouts = computed(() => {
 // Cores fixas (o SVG do v-network-graph não lê variáveis CSS): escolhidas
 // para funcionar tanto no tema claro como no escuro. O rótulo fica dentro do
 // vértice, em branco, para não depender da cor de fundo.
-const COR_VERTICE = '#3b63d6'
-const COR_ARESTA = '#9097a3'
+const CORES = {
+  azul: { vertice: '#3b63d6', aresta: '#9097a3' },
+  laranja: { vertice: '#e8590c', aresta: '#e3a27a' },
+} as const
 
 const configs = computed(() => {
   const pequeno = props.raio < 80
+  const { vertice: COR_VERTICE, aresta: COR_ARESTA } = CORES[props.cor]
+  // Rótulos com mais de 2 caracteres ("1,2") precisam de vértices maiores e letra menor.
+  const longo = (props.rotulos ?? []).some((rotulo) => rotulo.length > 2)
+  const raioDoVertice = longo ? (pequeno ? 13 : 18) : pequeno ? 10 : 15
+  const tamanhoDaLetra = longo ? (pequeno ? 8 : 11) : pequeno ? 10 : 13
   return defineConfigs({
     // Sem zoom/pan: a roda do rato deve rolar a página, não o grafo.
     view: { panEnabled: false, zoomEnabled: false },
     node: {
-      normal: { radius: pequeno ? 10 : 15, color: COR_VERTICE },
-      hover: { radius: pequeno ? 11 : 16, color: COR_VERTICE },
+      normal: { radius: raioDoVertice, color: COR_VERTICE },
+      hover: { radius: raioDoVertice + 1, color: COR_VERTICE },
       label: {
         visible: true,
         direction: 'center',
         color: '#ffffff',
-        fontSize: pequeno ? 10 : 13,
+        fontSize: tamanhoDaLetra,
         fontFamily: 'Inter Variable, Inter, sans-serif',
       },
     },

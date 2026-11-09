@@ -50,6 +50,22 @@ describe('InducedPartitionDisplay', () => {
     expect(w.findAll('.configuracao')).toHaveLength(120)
   })
 
+  it('cada permutação tem o grafo de σ e, ao lado, o grafo laranja de σ*', async () => {
+    const w = mount(InducedPartitionDisplay, { props: { N: 5 } })
+    for (const botao of w.findAll('button.cabecalho')) await botao.trigger('click')
+    const pares = w.findAll('.par-de-grafos')
+    expect(pares).toHaveLength(120)
+    for (const par of pares) expect(par.findAll('.polya-graph')).toHaveLength(2)
+    expect(w.findAll('.ponto.sigma-estrela')).toHaveLength(120)
+  })
+
+  it('os cabeçalhos não mostram ";" soltos (um \\; que perdeu a barra)', () => {
+    const w = mount(InducedPartitionDisplay, { props: { N: 5 } })
+    for (const cabecalho of w.findAll('button.cabecalho')) {
+      expect(cabecalho.text()).not.toContain(';')
+    }
+  })
+
   it('acima de 600 permutações, mostra a explicação e espera pelo alerta para os grafos', async () => {
     const w = mount(InducedPartitionDisplay, { props: { N: 9 } })
     await w.findAll('button.cabecalho')[0]!.trigger('click') // o 9-ciclo: 8! = 40 320

@@ -21,6 +21,10 @@
   --aviso-soft: #fdf5e3;
   --aviso-line: #ecd29c;
 
+  /* Cores dos grafos: as mesmas do PolyaGraph, iguais nos dois temas. */
+  --cor-sigma: #3b63d6;
+  --cor-sigma-estrela: #e8590c;
+
   --font-sans:
     'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Source Serif 4 Variable', 'Source Serif Pro', Georgia, 'Times New Roman', serif;

@@ -252,3 +252,36 @@ export const tipoInduzidoDoTipo = (
 
   return { contribuicoes, tipo }
 }
+
+/** O grafo de σ*, pronto a alimentar o `PolyaGraph`. */
+export interface GrafoDaAcaoInduzida {
+  /** Quantos vértices: um por aresta de K_n, C(n, 2). */
+  vertices: number
+  /** Rótulo de cada vértice, na ordem de `paresDe`: "1,2", "1,3", … */
+  rotulos: string[]
+  /**
+   * Uma seta por aresta que se move: [k, l] quer dizer que σ* leva a k-ésima
+   * aresta de K_n na l-ésima (1-based). Arestas fixas não têm seta — ficam
+   * isoladas, como os pontos fixos no grafo de σ.
+   */
+  arestas: Aresta[]
+}
+
+/**
+ * O grafo de σ*: os vértices são as arestas de K_n e as setas são a
+ * aplicação de σ* — {i, j} -> {σ(i), σ(j)}.
+ *
+ * Ex.: n = 3, σ = (1 2): {1,3} -> {2,3} e {2,3} -> {1,3}; {1,2} fica fixa.
+ */
+export const grafoDaAcaoInduzida = (sigma: Permutacao, n: number): GrafoDaAcaoInduzida => {
+  const pares = paresDe(n)
+  const indice = new Map(pares.map((par, k) => [chaveDaAresta(par), k + 1]))
+
+  const arestas: Aresta[] = []
+  pares.forEach((par, k) => {
+    const destino = indice.get(chaveDaAresta(aplicarNaAresta(sigma, par)))!
+    if (destino !== k + 1) arestas.push([k + 1, destino])
+  })
+
+  return { vertices: pares.length, rotulos: pares.map(([a, b]) => `${a},${b}`), arestas }
+}

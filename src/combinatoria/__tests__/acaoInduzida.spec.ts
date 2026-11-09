@@ -3,6 +3,7 @@ import {
   ciclosDaAcaoInduzida,
   classesDeArestas,
   contribuicaoPrevista,
+  grafoDaAcaoInduzida,
   tipoInduzidoDoTipo,
   ciclosDaPermutacao,
   imagensDasArestas,
@@ -171,6 +172,34 @@ describe('tipoInduzidoDoTipo (só os comprimentos)', () => {
         const sigma = permutacaoDosCiclos(representanteDoTipo(n, partes), n)
         expect(tipoInduzidoDoTipo(partes).tipo).toEqual(tipoCiclico(ciclosDaAcaoInduzida(sigma, n)))
       }
+    }
+  })
+})
+
+describe('grafoDaAcaoInduzida', () => {
+  it('tem um vértice por aresta de K_n e uma seta por aresta que se move', () => {
+    const grafo = grafoDaAcaoInduzida(sigmaDe('(1 2)', 3), 3)
+    expect(grafo.vertices).toBe(3)
+    expect(grafo.rotulos).toEqual(['1,2', '1,3', '2,3'])
+    // {1,3} (2.º) <-> {2,3} (3.º); {1,2} (1.º) fica fixa, sem laço.
+    expect(grafo.arestas).toEqual([
+      [2, 3],
+      [3, 2],
+    ])
+  })
+
+  it('os ciclos do grafo são os ciclos de σ*, para todo tipo de n = 6', () => {
+    for (const particao of gerarParticoesKPartes(6, 6)) {
+      const sigma = permutacaoDosCiclos(representanteDoTipo(6, expandirPartes(particao)), 6)
+      const grafo = grafoDaAcaoInduzida(sigma, 6)
+      const destino = new Map(grafo.arestas.map(([de, para]) => [de, para]))
+      const vertices = Array.from({ length: grafo.vertices }, (_, k) => k + 1)
+      const ciclos = decomporEmCiclos(
+        vertices,
+        (v) => destino.get(v) ?? v,
+        (v) => String(v),
+      )
+      expect(tipoCiclico(ciclos)).toEqual(tipoCiclico(ciclosDaAcaoInduzida(sigma, 6)))
     }
   })
 })

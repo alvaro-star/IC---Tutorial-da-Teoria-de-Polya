@@ -3,14 +3,19 @@ import { computed, ref, watch } from 'vue'
 import { gerarParticoesKPartes, type Particao } from '@/combinatoria/gerarParticoesKPartes'
 import { expandirPartes, gerarConfiguracoesUnicas, contarPartes } from '@/combinatoria/mathForms'
 import { contarPermutacoesDoTipo } from '@/combinatoria/contarPermutacoesDoTipo'
-import { tipoInduzidoDoTipo } from '@/combinatoria/acaoInduzida'
+import {
+  grafoDaAcaoInduzida,
+  permutacaoDosCiclos,
+  tipoInduzidoDoTipo,
+  type GrafoDaAcaoInduzida,
+} from '@/combinatoria/acaoInduzida'
 import {
   formatarParticao,
   formatarParticaoLatex,
   formatarSomaLatex,
   formatarTipoCiclicoLatex,
 } from '@/combinatoria/formatadores'
-import { grafoDoCiclo, type Aresta } from '@/combinatoria/grafoDoCiclo'
+import { grafoDoCiclo, interpretarCiclos, type Aresta } from '@/combinatoria/grafoDoCiclo'
 import { LIMITE_DE_REGISTROS } from '@/limites'
 import MathTex from '@/components/MathTex.vue'
 import AlertaAviso from '@/components/AlertaAviso.vue'
@@ -32,6 +37,8 @@ interface Configuracao {
   texto: string
   /** As arestas direcionadas correspondentes; pontos fixos ficam isolados. */
   arestas: Aresta[]
+  /** O grafo de σ*: vértices = arestas de K_n, setas = {i,j} -> {σ(i),σ(j)}. */
+  induzido: GrafoDaAcaoInduzida
 }
 
 /** Uma linha da lista: só o que o cabeçalho mostra — nada de permutações. */
@@ -85,6 +92,10 @@ const configuracoesDe = (linha: LinhaDaParticao): Configuracao[] => {
     configuracoes = gerarConfiguracoesUnicas(n.value, linha.tipoCiclico).map((texto) => ({
       texto,
       arestas: grafoDoCiclo(texto).arestas,
+      induzido: grafoDaAcaoInduzida(
+        permutacaoDosCiclos(interpretarCiclos(texto), n.value),
+        n.value,
+      ),
     }))
     cache.set(linha.chave, configuracoes)
   }
@@ -113,6 +124,13 @@ const rotuloQuantidade = (quantidade: bigint) =>
       <MathTex :expr="`\\binom{${n}}{2} = ${(n * (n - 1)) / 2}`" /> arestas. Abra uma linha para ver
       como ele se define e se calcula.
     </p>
+    <p class="summary">
+      Cada permutação aparece com dois grafos: à esquerda, <strong class="sigma">σ</strong> sobre os
+      vértices; à direita, <strong class="sigma-estrela">σ*</strong>, em que cada vértice é uma
+      aresta <MathTex expr="\{i,j\}" /> do grafo inicial e cada seta é a aplicação
+      <MathTex expr="\{i,j\} \mapsto \{\sigma(i), \sigma(j)\}" />. As arestas que não se movem ficam
+      isoladas.
+    </p>
 
     <CollapsibleSection
       v-for="linha in linhas"
@@ -123,7 +141,7 @@ const rotuloQuantidade = (quantidade: bigint) =>
     >
       <template #titulo>
         <MathTex
-          :expr="`${linha.titulo} \;\\longmapsto\; T(\\sigma^{*}) = ${linha.tipoInduzido}`"
+          :expr="`${linha.titulo} \\;\\longmapsto\\; T(\\sigma^{*}) = ${linha.tipoInduzido}`"
         />
       </template>
 
@@ -153,13 +171,30 @@ const rotuloQuantidade = (quantidade: bigint) =>
           class="configuracao"
         >
           <p class="titulo-ciclo">{{ configuracao.texto }}</p>
-          <PolyaGraph
-            :n="n"
-            direcionado
-            :arestas="configuracao.arestas"
-            :raio="52"
-            altura="150px"
-          />
+          <div class="par-de-grafos">
+            <figure>
+              <PolyaGraph
+                :n="n"
+                direcionado
+                :arestas="configuracao.arestas"
+                :raio="52"
+                altura="190px"
+              />
+              <figcaption><span class="ponto sigma"></span>σ · vértices</figcaption>
+            </figure>
+            <figure>
+              <PolyaGraph
+                :n="configuracao.induzido.vertices"
+                direcionado
+                cor="laranja"
+                :arestas="configuracao.induzido.arestas"
+                :rotulos="configuracao.induzido.rotulos"
+                :raio="70"
+                altura="190px"
+              />
+              <figcaption><span class="ponto sigma-estrela"></span>σ* · arestas</figcaption>
+            </figure>
+          </div>
         </li>
       </ul>
     </CollapsibleSection>
@@ -175,7 +210,7 @@ const rotuloQuantidade = (quantidade: bigint) =>
 
 .configuracoes {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
   gap: 0.75rem;
   margin: 0;
   padding: 0;
@@ -192,6 +227,50 @@ const rotuloQuantidade = (quantidade: bigint) =>
 .configuracao :deep(.polya-graph) {
   border: none;
   background: none;
+}
+
+.par-de-grafos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.par-de-grafos figure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.par-de-grafos figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.ponto {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+
+.ponto.sigma {
+  background: var(--cor-sigma);
+}
+
+.ponto.sigma-estrela {
+  background: var(--cor-sigma-estrela);
+}
+
+strong.sigma {
+  color: var(--cor-sigma);
+}
+
+strong.sigma-estrela {
+  color: var(--cor-sigma-estrela);
 }
 
 .titulo-ciclo {
