@@ -1,26 +1,169 @@
 @import './base.css';
 
 /*
- * Largura total da janela: as secções colapsáveis ocupam todo o eixo x,
- * com a margem lateral vinda daqui (padding) — as views não repetem esse
- * recuo. O `padding-top` afasta o conteúdo do cabeçalho fixo do App.vue.
+ * Primitivas partilhadas pelas views: contentor de página, tipografia,
+ * botões e campos. Estilo específico de um componente fica no próprio .vue.
  */
 #app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Contentores ── */
+.pagina {
   width: 100%;
-  padding: 4rem 2rem 2rem;
-  font-weight: normal;
+  max-width: var(--largura-pagina);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
 }
 
-a,
-.green {
+.pagina-estreita {
+  max-width: calc(var(--largura-texto) + 3rem);
+}
+
+/* ── Tipografia ── */
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+}
+
+h2 {
+  font-size: 1.6rem;
+}
+
+h3 {
+  font-size: 1.15rem;
+}
+
+strong {
+  font-weight: 600;
+}
+
+.sobretitulo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.lead {
+  max-width: var(--largura-texto);
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+}
+
+.cabecalho-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 0.15s ease;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--surface-sunken);
+}
+
+/* ── Botões e campos ── */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+.botao:hover:not(:disabled) {
+  border-color: var(--ink-soft);
+}
+
+.botao:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.botao-primario {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.botao-primario:hover:not(:disabled) {
+  border-color: var(--accent-ink);
+  background: var(--accent-ink);
+}
+
+input,
+select {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+
+/* Matemática em bloco nunca alarga a página: rola por dentro. */
+.katex-display {
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+@media (max-width: 640px) {
+  .pagina {
+    padding: 1.75rem 1rem 3rem;
   }
 }

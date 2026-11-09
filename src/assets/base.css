@@ -1,52 +1,65 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/*
+ * Tokens de design. Estética de caderno/livro-texto: papel claro, tinta escura,
+ * um único acento azul para o que é interativo ou importante. Todas as cores
+ * passam por aqui — os componentes não devem ter cores literais.
+ */
 :root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-sunken: #f4f2ed;
+  --ink: #1d2433;
+  --ink-soft: #485063;
+  --muted: #7a8091;
+  --line: #e7e3da;
+  --line-strong: #d2ccbf;
+  --accent: #2f5bd3;
+  --accent-ink: #1f3f94;
+  --accent-soft: #edf2fd;
+  --on-accent: #ffffff;
 
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
+  --font-sans:
+    'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Source Serif 4 Variable', 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, Consolas, monospace;
 
-  --vt-c-indigo: #2c3e50;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 2px rgba(29, 36, 51, 0.04), 0 4px 16px rgba(29, 36, 51, 0.04);
 
-  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
+  --largura-pagina: 72rem;
+  --largura-texto: 44rem;
+  --altura-topo: 3.5rem;
 
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
+  /* Nomes antigos do scaffold, mantidos como apelidos. */
+  --color-background: var(--bg);
+  --color-background-soft: var(--surface);
+  --color-background-mute: var(--surface-sunken);
+  --color-border: var(--line);
+  --color-border-hover: var(--line-strong);
+  --color-heading: var(--ink);
+  --color-text: var(--ink);
 
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
-
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --bg: #14161b;
+    --surface: #1b1e25;
+    --surface-sunken: #21252d;
+    --ink: #e9e7e2;
+    --ink-soft: #bbb9b3;
+    --muted: #8c909a;
+    --line: #2b3039;
+    --line-strong: #3c424d;
+    --accent: #8ba7ff;
+    --accent-ink: #b5c6ff;
+    --accent-soft: rgba(139, 167, 255, 0.12);
+    --on-accent: #10131a;
+    --shadow: none;
 
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    color-scheme: dark;
   }
 }
 
@@ -55,31 +68,19 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
-  font-weight: normal;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
-  line-height: 1.6;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  font-size: 15px;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

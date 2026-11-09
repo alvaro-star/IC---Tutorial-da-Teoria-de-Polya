@@ -17,6 +17,7 @@ const arestasDirigidas: [number, number][] = [
   [4, 1],
 ]
 
+// O campo não é controlado: N só muda ao aplicar, digitar não recalcula nada.
 const apply = () => {
   const raw = nVerticesInput.value?.value
   const parsed = raw === undefined || raw === '' ? NaN : Number(raw)
@@ -26,67 +27,90 @@ const apply = () => {
 </script>
 
 <template>
-  <main class="polia-demo">
-    <h1>Polia — demonstração</h1>
+  <main class="pagina demo">
+    <header class="cabecalho-pagina">
+      <p class="sobretitulo">Passo 2 · Prática</p>
+      <h1>Demonstração interativa</h1>
+      <p class="lead">
+        Considere o conjunto <MathTex :expr="`S = \\{1, 2, \\ldots, ${N}\\}`" />, formado pelos
+        <MathTex :expr="String(N)" /> primeiros inteiros positivos. Os elementos de
+        <MathTex expr="S" /> são os vértices dos grafos que vamos considerar.
+      </p>
+    </header>
 
-    <div class="controls">
-      <label>
-        N (1 … N)
-        <input ref="nVerticesInput" type="number" min="1" step="1" placeholder="ex.: 5" />
-      </label>
-      <button type="button" @click="apply">Aplicar</button>
-    </div>
+    <form class="controle" @submit.prevent="apply">
+      <label for="campo-n">Número de vértices <MathTex expr="N" /></label>
+      <div class="controle-linha">
+        <input
+          id="campo-n"
+          ref="nVerticesInput"
+          type="number"
+          min="1"
+          step="1"
+          :value="N"
+          inputmode="numeric"
+        />
+        <button type="submit" class="botao botao-primario">Aplicar</button>
+      </div>
+      <p class="controle-dica">
+        O passo 3 gera todas as <MathTex expr="N!" /> permutações; a partir de
+        <MathTex expr="N = 8" /> a página fica lenta.
+      </p>
+    </form>
 
-    <p class="intro">
-      Considere o conjunto
-      <MathTex :expr="`S = \\{1, 2, \\ldots, ${N}\\}`" />, formado pelos
-      <MathTex :expr="String(N)" /> primeiros inteiros positivos. Ao longo deste
-      texto, os elementos de <MathTex expr="S" /> são os vértices do grafo que
-      iremos considerar.
-    </p>
-
-    <CollapsibleSection titulo="Subconjuntos de pares" :dica="`S = {1 … ${N}}`">
+    <CollapsibleSection :numero="1" titulo="Pares de vértices" :dica="`S = {1 … ${N}}`">
       <SubsetDisplay :N="N" />
     </CollapsibleSection>
 
-    <CollapsibleSection titulo="Grafo direcionado" dica="4 arestas: 1 → 2 → 3 → 4 → 1">
+    <CollapsibleSection :numero="2" titulo="Grafo direcionado" dica="1 → 2 → 3 → 4 → 1">
+      <p class="explicacao-passo">
+        Um ciclo de uma permutação desenha-se como um grafo direcionado: cada vértice aponta para a
+        sua imagem. Aqui, o ciclo <MathTex expr="(1\,2\,3\,4)" />.
+      </p>
       <PolyaGraph :n="N" direcionado :arestas="arestasDirigidas" />
     </CollapsibleSection>
 
-    <CollapsibleSection titulo="Partições" :dica="`de ${N}`">
+    <CollapsibleSection :numero="3" titulo="Partições e tipos cíclicos" :dica="`de ${N}`">
       <PartitionDisplay :N="N" />
     </CollapsibleSection>
   </main>
 </template>
 
 <style scoped>
-/* A margem lateral vem do #app (main.css); aqui só o espaçamento vertical. */
-.polia-demo {
-  padding: 1rem 0;
-}
-
-.intro {
-  max-width: 60ch;
-  margin-bottom: 1.25rem;
-  font-size: 0.95rem;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.controls label {
+.controle {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.9rem;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
 }
 
-.controls input {
-  min-width: 6rem;
+.controle label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.controle-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.controle-linha input {
+  width: 7rem;
+}
+
+.controle-dica {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.explicacao-passo {
+  max-width: var(--largura-texto);
+  margin-bottom: 1rem;
+  color: var(--ink-soft);
 }
 </style>

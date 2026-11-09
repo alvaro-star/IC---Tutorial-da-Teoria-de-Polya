@@ -40,9 +40,7 @@ const props = defineProps<{ N: number }>()
 const n = computed(() => Math.max(0, Math.floor(props.N)))
 
 // Sem restrição no número de partes: k = n gera todas as partições de n.
-const particoes = computed(() =>
-  n.value < 1 ? [] : gerarParticoesKPartes(n.value, n.value),
-)
+const particoes = computed(() => (n.value < 1 ? [] : gerarParticoesKPartes(n.value, n.value)))
 
 /**
  * Traduz uma partição na linha correspondente. A partição expandida
@@ -55,9 +53,10 @@ const construirLinha = (particao: Particao): LinhaDaParticao => {
     chave: formatarParticao(particao),
     titulo: `${formatarParticaoLatex(particao)} \\;=\\; ${formatarSomaLatex(particao)}`,
     numeroDePartes: contarPartes(particao),
-    configuracoes: gerarConfiguracoesUnicas(n.value, tipoCiclico).map(
-      (texto) => ({ texto, arestas: grafoDoCiclo(texto).arestas }),
-    ),
+    configuracoes: gerarConfiguracoesUnicas(n.value, tipoCiclico).map((texto) => ({
+      texto,
+      arestas: grafoDoCiclo(texto).arestas,
+    })),
   }
 }
 
@@ -103,27 +102,36 @@ const linhas = computed(() => particoes.value.map(construirLinha))
 </template>
 
 <style scoped>
-.partition-display {
-  padding: 0.25rem 0;
-}
-
 .summary {
   margin-bottom: 0.75rem;
-  font-size: 0.95rem;
+  color: var(--ink-soft);
 }
 
 .configuracoes {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 1rem;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.configuracao {
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+}
+
+.configuracao :deep(.polya-graph) {
+  border: none;
+  background: none;
 }
 
 .titulo-ciclo {
-  margin-bottom: 0.35rem;
-  font-family: monospace;
-  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-align: center;
 }
 </style>

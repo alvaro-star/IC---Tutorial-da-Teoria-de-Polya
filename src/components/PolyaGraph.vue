@@ -76,23 +76,40 @@ const layouts = computed(() => {
   return { nodes }
 })
 
-const configs = computed(() =>
-  defineConfigs({
+// Cores fixas (o SVG do v-network-graph não lê variáveis CSS): escolhidas
+// para funcionar tanto no tema claro como no escuro. O rótulo fica dentro do
+// vértice, em branco, para não depender da cor de fundo.
+const COR_VERTICE = '#3b63d6'
+const COR_ARESTA = '#9097a3'
+
+const configs = computed(() => {
+  const pequeno = props.raio < 80
+  return defineConfigs({
+    // Sem zoom/pan: a roda do rato deve rolar a página, não o grafo.
+    view: { panEnabled: false, zoomEnabled: false },
     node: {
-      label: { visible: true },
+      normal: { radius: pequeno ? 10 : 15, color: COR_VERTICE },
+      hover: { radius: pequeno ? 11 : 16, color: COR_VERTICE },
+      label: {
+        visible: true,
+        direction: 'center',
+        color: '#ffffff',
+        fontSize: pequeno ? 10 : 13,
+        fontFamily: 'Inter Variable, Inter, sans-serif',
+      },
     },
     edge: {
+      normal: { color: COR_ARESTA, width: pequeno ? 1.5 : 2 },
+      hover: { color: COR_VERTICE, width: pequeno ? 1.5 : 2 },
       // `gap` afasta as arestas que ligam o mesmo par: sem isto, a->b e b->a
       // ficariam sobrepostas e só se veria uma seta.
       gap: props.direcionado ? 12 : 0,
       marker: {
-        target: props.direcionado
-          ? { type: 'arrow', width: 4, height: 4 }
-          : { type: 'none' },
+        target: props.direcionado ? { type: 'arrow', width: 4, height: 4 } : { type: 'none' },
       },
     },
-  }),
-)
+  })
+})
 </script>
 
 <template>
@@ -110,8 +127,9 @@ const configs = computed(() =>
 
 <style scoped>
 .polya-graph {
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .graph {

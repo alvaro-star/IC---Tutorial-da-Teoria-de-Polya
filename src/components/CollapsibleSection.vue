@@ -11,8 +11,10 @@ const props = withDefaults(
     aberta?: boolean
     /** Cabeçalho mais discreto, para linhas dentro de uma secção. */
     compacta?: boolean
+    /** Número do passo, mostrado num círculo antes do título. */
+    numero?: number
   }>(),
-  { aberta: true, compacta: false },
+  { titulo: undefined, dica: undefined, aberta: true, compacta: false, numero: undefined },
 )
 
 // O conteúdo é montado só quando aberto (v-if no template): listas de n!
@@ -25,18 +27,23 @@ const alternar = () => {
 </script>
 
 <template>
-  <section class="collapsible" :class="{ compacta }">
-    <button
-      type="button"
-      class="cabecalho"
-      :aria-expanded="aberto"
-      @click="alternar"
-    >
-      <span class="seta" :class="{ aberto }" aria-hidden="true">▸</span>
+  <section class="collapsible" :class="{ compacta, aberto }">
+    <button type="button" class="cabecalho" :aria-expanded="aberto" @click="alternar">
+      <span v-if="numero !== undefined" class="numero" aria-hidden="true">{{ numero }}</span>
       <span class="titulo">
         <slot name="titulo">{{ titulo }}</slot>
       </span>
       <span v-if="dica" class="dica">{{ dica }}</span>
+      <svg class="seta" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <path
+          d="M6 4l4 4-4 4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
     </button>
 
     <div v-if="aberto" class="conteudo">
@@ -47,71 +54,115 @@ const alternar = () => {
 
 <style scoped>
 .collapsible {
-  border: 1px solid rgba(128, 128, 128, 0.3);
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  overflow: hidden;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .collapsible.compacta {
-  border: none;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.25);
-  border-radius: 0;
   margin-bottom: 0;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
 .cabecalho {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.85rem;
   width: 100%;
-  padding: 0.6rem 0.8rem;
+  padding: 1.1rem 1.4rem;
   border: none;
-  background: rgba(128, 128, 128, 0.08);
-  font: inherit;
-  font-size: 1rem;
+  border-radius: var(--radius-lg);
+  background: none;
   color: inherit;
+  font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
 .compacta .cabecalho {
-  background: none;
-  padding: 0.4rem 0.2rem;
-  font-size: 0.95rem;
+  gap: 0.6rem;
+  padding: 0.65rem 0.25rem;
+  border-radius: 0;
 }
 
-.cabecalho:hover {
-  background: rgba(128, 128, 128, 0.16);
+.cabecalho:hover .seta {
+  color: var(--ink);
 }
 
-.seta {
-  display: inline-block;
+.numero {
+  display: grid;
   flex: none;
-  transition: transform 0.15s ease;
-  opacity: 0.7;
-}
-
-.seta.aberto {
-  transform: rotate(90deg);
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-weight: 600;
 }
 
 .titulo {
   flex: 1;
   min-width: 0;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.compacta .titulo {
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  font-weight: 400;
 }
 
 .dica {
   flex: none;
-  font-size: 0.8rem;
-  opacity: 0.65;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.seta {
+  flex: none;
+  order: -1;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.collapsible:not(.compacta) .seta {
+  order: 0;
+}
+
+.aberto > .cabecalho .seta {
+  transform: rotate(90deg);
 }
 
 .conteudo {
-  padding: 0.25rem 0.8rem 0.6rem;
+  padding: 0 1.4rem 1.4rem;
 }
 
 .compacta .conteudo {
-  padding: 0.25rem 0 0.6rem 1.6rem;
+  padding: 0.25rem 0 1rem 1.6rem;
+}
+
+@media (max-width: 640px) {
+  .cabecalho {
+    padding: 0.9rem 1rem;
+  }
+
+  .conteudo {
+    padding: 0 1rem 1rem;
+  }
+
+  .compacta .conteudo {
+    padding-left: 0.5rem;
+  }
 }
 </style>
