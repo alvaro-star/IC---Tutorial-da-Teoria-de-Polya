@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { VNetworkGraph, defineConfigs } from 'v-network-graph'
 import 'v-network-graph/lib/style.css'
+import { paresDe, verticesDe } from '@/combinatoria/pares'
 
 /**
  * Grafo sobre os vértices {1..n}.
@@ -10,6 +11,10 @@ import 'v-network-graph/lib/style.css'
  * comportamento original. Com `arestas`, desenha exatamente as que forem
  * passadas; nesse caso, com `direcionado`, cada par `[a, b]` é lido como a
  * aresta orientada a -> b e ganha uma seta na ponta.
+ *
+ * `rotulos` troca os números 1..n por outro texto (o grafo de σ* usa "1,2",
+ * "1,3", … porque os seus vértices são arestas de K_n); `cor` distingue os
+ * dois grafos: azul para σ sobre os vértices, laranja para σ* sobre as arestas.
  */
 const props = withDefaults(
   defineProps<{
@@ -22,32 +27,30 @@ const props = withDefaults(
     raio?: number
     /** Altura da caixa do grafo, em CSS. */
     altura?: string
+    /** Rótulo de cada vértice (o vértice v usa `rotulos[v - 1]`); por omissão, o número. */
+    rotulos?: string[]
+    /** `azul` (σ, por omissão) ou `laranja` (σ*). */
+    cor?: 'azul' | 'laranja'
   }>(),
-  { arestas: undefined, direcionado: false, raio: 150, altura: '400px' },
+  {
+    arestas: undefined,
+    direcionado: false,
+    raio: 150,
+    altura: '400px',
+    rotulos: undefined,
+    cor: 'azul',
+  },
 )
 
-const vertices = computed(() =>
-  Array.from({ length: Math.max(0, Math.floor(props.n)) }, (_, i) => i + 1),
-)
+const vertices = computed(() => verticesDe(props.n))
 
-// Pares de K_n: só usados quando o chamador não fornece `arestas`.
-const paresCompletos = computed(() => {
-  const items = vertices.value
-  const result: [number, number][] = []
-  for (let i = 0; i < items.length; i++) {
-    for (let j = i + 1; j < items.length; j++) {
-      result.push([items[i]!, items[j]!])
-    }
-  }
-  return result
-})
-
-const pairs = computed(() => props.arestas ?? paresCompletos.value)
+// Pares de K_n: só calculados quando o chamador não fornece `arestas`.
+const pairs = computed(() => props.arestas ?? paresDe(props.n))
 
 const nodes = computed(() => {
   const result: Record<string, { name: string }> = {}
   for (const v of vertices.value) {
-    result[`v${v}`] = { name: String(v) }
+    result[`v${v}`] = { name: props.rotulos?.[v - 1] ?? String(v) }
   }
   return result
 })
@@ -76,23 +79,47 @@ const layouts = computed(() => {
   return { nodes }
 })
 
-const configs = computed(() =>
-  defineConfigs({
+// Cores fixas (o SVG do v-network-graph não lê variáveis CSS): escolhidas
+// para funcionar tanto no tema claro como no escuro. O rótulo fica dentro do
+// vértice, em branco, para não depender da cor de fundo.
+const CORES = {
+  azul: { vertice: '#3b63d6', aresta: '#9097a3' },
+  laranja: { vertice: '#e8590c', aresta: '#e3a27a' },
+} as const
+
+const configs = computed(() => {
+  const pequeno = props.raio < 80
+  const { vertice: COR_VERTICE, aresta: COR_ARESTA } = CORES[props.cor]
+  // Rótulos com mais de 2 caracteres ("1,2") precisam de vértices maiores e letra menor.
+  const longo = (props.rotulos ?? []).some((rotulo) => rotulo.length > 2)
+  const raioDoVertice = longo ? (pequeno ? 13 : 18) : pequeno ? 10 : 15
+  const tamanhoDaLetra = longo ? (pequeno ? 8 : 11) : pequeno ? 10 : 13
+  return defineConfigs({
+    // Sem zoom/pan: a roda do rato deve rolar a página, não o grafo.
+    view: { panEnabled: false, zoomEnabled: false },
     node: {
-      label: { visible: true },
+      normal: { radius: raioDoVertice, color: COR_VERTICE },
+      hover: { radius: raioDoVertice + 1, color: COR_VERTICE },
+      label: {
+        visible: true,
+        direction: 'center',
+        color: '#ffffff',
+        fontSize: tamanhoDaLetra,
+        fontFamily: 'Inter Variable, Inter, sans-serif',
+      },
     },
     edge: {
+      normal: { color: COR_ARESTA, width: pequeno ? 1.5 : 2 },
+      hover: { color: COR_VERTICE, width: pequeno ? 1.5 : 2 },
       // `gap` afasta as arestas que ligam o mesmo par: sem isto, a->b e b->a
       // ficariam sobrepostas e só se veria uma seta.
       gap: props.direcionado ? 12 : 0,
       marker: {
-        target: props.direcionado
-          ? { type: 'arrow', width: 4, height: 4 }
-          : { type: 'none' },
+        target: props.direcionado ? { type: 'arrow', width: 4, height: 4 } : { type: 'none' },
       },
     },
-  }),
-)
+  })
+})
 </script>
 
 <template>
@@ -110,8 +137,9 @@ const configs = computed(() =>
 
 <style scoped>
 .polya-graph {
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .graph {

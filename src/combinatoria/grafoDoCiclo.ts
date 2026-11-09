@@ -66,8 +66,7 @@ export const interpretarCiclos = (texto: string): Ciclo[] => {
  * como a textual (`"(1 3)(2 4)"`, o que a lista do ecrã mostra).
  */
 export const grafoDoCiclo = (ciclos: Ciclo[] | string): GrafoDoCiclo => {
-  const decomposicao =
-    typeof ciclos === 'string' ? interpretarCiclos(ciclos) : ciclos
+  const decomposicao = typeof ciclos === 'string' ? interpretarCiclos(ciclos) : ciclos
 
   const vertices: number[] = []
   const arestas: Aresta[] = []
