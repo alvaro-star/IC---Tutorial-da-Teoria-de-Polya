@@ -100,7 +100,7 @@ The count per type is `n! / prod(k^j_k * j_k!)`; summed over all partitions of n
 
 `permutacoesR`, `permsDoTipo`, and its inner `rec` are `function*` expressions: generators cannot be arrow functions (see Code Conventions).
 
-Unlike the Python original, none of these read stdin or print; they return arrays.
+The module was ported from a Python reference (`gerarParticoeskpartes.py`, removed from the tree; still in git history at commit `9356a2e`). Unlike that original, none of these read stdin or print; they return arrays.
 
 ### Visual design
 
@@ -113,10 +113,6 @@ The tutorial path is Início (`/`) → 1 Teoria (`/explicacao`) → 2 Prática (
 ### Rendering math
 
 `MathTex.vue` is the single entry point for math: it wraps **KaTeX** `renderToString` (`throwOnError: false`, `output: 'html'`) behind `<MathTex :expr="..." :display="..." />`. `katex/dist/katex.min.css` is imported globally in `src/main.ts`. Pass LaTeX source through `expr` rather than reaching for KaTeX directly in a component. (`vue-mathjax-next` is still in `package.json` but is not used anywhere.)
-
-### Algorithm reference (not part of the app build)
-
-`src/gerarParticoeskpartes.py` is the standalone Python reference the TypeScript module was ported from: `generate_integer_partitions` (filter approach) and `generate_integer_partitions_k_parts` (direct-rule approach), plus a harness that cross-checks the two and benchmarks them. It is research material — not imported by the Vue app, not covered by the build or tests. Only the direct-rule approach survives in the `.ts` port (the filter variant and the cross-check harness were dropped as dead code), so the two files are deliberately no longer one-to-one.
 
 ## Code Conventions
 

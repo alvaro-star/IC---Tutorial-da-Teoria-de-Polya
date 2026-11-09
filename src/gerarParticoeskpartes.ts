@@ -1,5 +1,6 @@
 /**
- * Adaptação em TypeScript de `gerarParticoeskpartes.py`.
+ * Adaptação em TypeScript de `gerarParticoeskpartes.py` (a referência Python,
+ * já removida do projeto; continua no histórico do git, commit 9356a2e).
  *
  * Gera partições inteiras de `n` usando a representação de multiplicidade
  * (Algoritmo 7):
