@@ -22,6 +22,11 @@ const router = createRouter({
       name: 'polia-demonstration',
       component: () => import('../views/PoliaDemonstration.vue'),
     },
+    {
+      path: '/explicacao',
+      name: 'explicacao',
+      component: () => import('../views/ExplicacaoView.vue'),
+    },
   ],
 })
 
