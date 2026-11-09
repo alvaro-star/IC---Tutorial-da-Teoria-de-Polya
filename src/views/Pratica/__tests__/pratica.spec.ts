@@ -1,0 +1,60 @@
+import { describe, expect, it } from 'vitest'
+import { mount } from '@vue/test-utils'
+import AcaoInduzida from '../components/AcaoInduzida.vue'
+import InducedPartitionDisplay from '../components/InducedPartitionDisplay.vue'
+import SubsetDisplay from '../components/SubsetDisplay.vue'
+
+// `katex-error` é a classe que o KaTeX põe numa expressão que não conseguiu ler.
+
+describe('SubsetDisplay', () => {
+  it('renderiza o conjunto de pares sem erros de LaTeX', () => {
+    for (const N of [1, 2, 5, 10]) {
+      expect(mount(SubsetDisplay, { props: { N } }).html(), `N=${N}`).not.toContain('katex-error')
+    }
+  })
+})
+
+describe('AcaoInduzida', () => {
+  it('renderiza para vários N e várias σ', async () => {
+    for (const N of [1, 2, 3, 5, 8]) {
+      expect(mount(AcaoInduzida, { props: { N } }).html(), `N=${N}`).not.toContain('katex-error')
+    }
+    const w = mount(AcaoInduzida, { props: { N: 6 } })
+    for (const sigma of ['(1 2 3 4)', '(1 2 3 4 5 6)', '(1)', '(1 2)(3 4)(5 6)']) {
+      await w.find('input').setValue(sigma)
+      await w.find('form').trigger('submit')
+      expect(w.html(), sigma).not.toContain('katex-error')
+    }
+  })
+
+  it('mostra o erro de leitura de σ', async () => {
+    const w = mount(AcaoInduzida, { props: { N: 5 } })
+    await w.find('input').setValue('(1 9)')
+    await w.find('form').trigger('submit')
+    expect(w.find('[role=alert]').text()).toContain('1 a 5')
+  })
+
+  it('com p(N) > 600 tipos, o menu de exemplos espera pelo alerta', () => {
+    const w = mount(AcaoInduzida, { props: { N: 20 } })
+    expect(w.find('[role=alert]').text()).toContain('627')
+    expect(w.find('select').exists()).toBe(false)
+  })
+})
+
+describe('InducedPartitionDisplay', () => {
+  it('abre todas as linhas de N = 5 com a explicação e os 120 grafos', async () => {
+    const w = mount(InducedPartitionDisplay, { props: { N: 5 } })
+    for (const botao of w.findAll('button.cabecalho')) await botao.trigger('click')
+    expect(w.html()).not.toContain('katex-error')
+    expect(w.findAll('.explicacao')).toHaveLength(7)
+    expect(w.findAll('.configuracao')).toHaveLength(120)
+  })
+
+  it('acima de 600 permutações, mostra a explicação e espera pelo alerta para os grafos', async () => {
+    const w = mount(InducedPartitionDisplay, { props: { N: 9 } })
+    await w.findAll('button.cabecalho')[0]!.trigger('click') // o 9-ciclo: 8! = 40 320
+    expect(w.find('.explicacao').exists()).toBe(true)
+    expect(w.find('[role=alert]').text()).toContain('40.320')
+    expect(w.findAll('.configuracao')).toHaveLength(0)
+  })
+})

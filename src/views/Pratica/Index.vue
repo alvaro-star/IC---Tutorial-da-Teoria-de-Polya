@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import MathTex from '@/components/MathTex.vue'
 import PolyaGraph from '@/components/PolyaGraph.vue'
-import SubsetDisplay from '@/components/SubsetDisplay.vue'
-import PartitionDisplay from '@/components/PartitionDisplay.vue'
+import SubsetDisplay from './components/SubsetDisplay.vue'
+import PartitionDisplay from './components/PartitionDisplay.vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
-import { ref } from 'vue'
+import AcaoInduzida from './components/AcaoInduzida.vue'
+import InducedPartitionDisplay from './components/InducedPartitionDisplay.vue'
+import { computed, ref } from 'vue'
+import { contarParticoes } from '@/combinatoria/contarParticoes'
 
 const nVerticesInput = ref<HTMLInputElement | null>(null)
 const N = ref(5)
@@ -18,6 +21,10 @@ const arestasDirigidas: [number, number][] = [
 ]
 
 // O campo não é controlado: N só muda ao aplicar, digitar não recalcula nada.
+// Registros de cada secção, para o alerta de listas grandes do CollapsibleSection.
+const totalDeArestas = computed(() => (N.value * (N.value - 1)) / 2)
+const numeroDeParticoes = computed(() => contarParticoes(N.value))
+
 const apply = () => {
   const raw = nVerticesInput.value?.value
   const parsed = raw === undefined || raw === '' ? NaN : Number(raw)
@@ -53,12 +60,17 @@ const apply = () => {
         <button type="submit" class="botao botao-primario">Aplicar</button>
       </div>
       <p class="controle-dica">
-        O passo 3 gera todas as <MathTex expr="N!" /> permutações; a partir de
-        <MathTex expr="N = 8" /> a página fica lenta.
+        No passo 3, as permutações de cada partição só são geradas ao abri-la. A partir de
+        <MathTex expr="N = 8" />, algumas partições têm milhares de grafos e demoram a abrir.
       </p>
     </form>
 
-    <CollapsibleSection :numero="1" titulo="Pares de vértices" :dica="`S = {1 … ${N}}`">
+    <CollapsibleSection
+      :numero="1"
+      titulo="Pares de vértices"
+      :dica="`S = {1 … ${N}}`"
+      :registros="totalDeArestas"
+    >
       <SubsetDisplay :N="N" />
     </CollapsibleSection>
 
@@ -70,8 +82,31 @@ const apply = () => {
       <PolyaGraph :n="N" direcionado :arestas="arestasDirigidas" />
     </CollapsibleSection>
 
-    <CollapsibleSection :numero="3" titulo="Partições e tipos cíclicos" :dica="`de ${N}`">
+    <CollapsibleSection
+      :numero="3"
+      titulo="Partições e tipos cíclicos"
+      :dica="`de ${N}`"
+      :registros="numeroDeParticoes"
+    >
       <PartitionDisplay :N="N" />
+    </CollapsibleSection>
+
+    <CollapsibleSection
+      :numero="4"
+      titulo="Ação induzida σ* sobre as arestas"
+      dica="σ*({i, j}) = {σ(i), σ(j)}"
+      :registros="totalDeArestas"
+    >
+      <AcaoInduzida :N="N" />
+    </CollapsibleSection>
+
+    <CollapsibleSection
+      :numero="5"
+      titulo="Tipos cíclicos induzidos"
+      :dica="`T(σ) ↦ T(σ*), de ${N}`"
+      :registros="numeroDeParticoes"
+    >
+      <InducedPartitionDisplay :N="N" />
     </CollapsibleSection>
   </main>
 </template>

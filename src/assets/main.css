@@ -154,7 +154,13 @@ select:focus-visible {
   border-color: var(--accent);
 }
 
-/* Matemática em bloco nunca alarga a página: rola por dentro. */
+/*
+ * Matemática em bloco nunca alarga a página: rola por dentro, só na
+ * horizontal. Não pôr `overflow-x: auto` em quem contém matemática: o eixo
+ * vertical passa também a `auto`, e as frações e binómios do KaTeX, que
+ * passam um pouco da altura da linha, fazem aparecer uma barra vertical.
+ * A matemática em linha quebra sozinha nas relações (=, ⇒, ↦).
+ */
 .katex-display {
   margin: 0.5rem 0;
   overflow-x: auto;

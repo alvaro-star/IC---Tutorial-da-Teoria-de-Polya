@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { VNetworkGraph, defineConfigs } from 'v-network-graph'
 import 'v-network-graph/lib/style.css'
+import { paresDe, verticesDe } from '@/combinatoria/pares'
 
 /**
  * Grafo sobre os vértices {1..n}.
@@ -26,23 +27,10 @@ const props = withDefaults(
   { arestas: undefined, direcionado: false, raio: 150, altura: '400px' },
 )
 
-const vertices = computed(() =>
-  Array.from({ length: Math.max(0, Math.floor(props.n)) }, (_, i) => i + 1),
-)
+const vertices = computed(() => verticesDe(props.n))
 
-// Pares de K_n: só usados quando o chamador não fornece `arestas`.
-const paresCompletos = computed(() => {
-  const items = vertices.value
-  const result: [number, number][] = []
-  for (let i = 0; i < items.length; i++) {
-    for (let j = i + 1; j < items.length; j++) {
-      result.push([items[i]!, items[j]!])
-    }
-  }
-  return result
-})
-
-const pairs = computed(() => props.arestas ?? paresCompletos.value)
+// Pares de K_n: só calculados quando o chamador não fornece `arestas`.
+const pairs = computed(() => props.arestas ?? paresDe(props.n))
 
 const nodes = computed(() => {
   const result: Record<string, { name: string }> = {}

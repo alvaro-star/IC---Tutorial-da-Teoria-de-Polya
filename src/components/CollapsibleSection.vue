@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import AlertaAviso from '@/components/AlertaAviso.vue'
+import { LIMITE_DE_REGISTROS } from '@/limites'
 
 const props = withDefaults(
   defineProps<{
@@ -13,8 +15,21 @@ const props = withDefaults(
     compacta?: boolean
     /** Número do passo, mostrado num círculo antes do título. */
     numero?: number
+    /**
+     * Quantos registros o conteúdo vai mostrar. Acima de `LIMITE_DE_REGISTROS` (600), abrir a secção
+     * mostra primeiro um alerta, e o conteúdo só é montado (e calculado)
+     * depois de o utilizador confirmar.
+     */
+    registros?: number | bigint
   }>(),
-  { titulo: undefined, dica: undefined, aberta: true, compacta: false, numero: undefined },
+  {
+    titulo: undefined,
+    dica: undefined,
+    aberta: true,
+    compacta: false,
+    numero: undefined,
+    registros: undefined,
+  },
 )
 
 // O conteúdo é montado só quando aberto (v-if no template): listas de n!
@@ -24,6 +39,21 @@ const aberto = ref(props.aberta)
 const alternar = () => {
   aberto.value = !aberto.value
 }
+
+const pesada = computed(
+  () => props.registros !== undefined && props.registros > LIMITE_DE_REGISTROS,
+)
+
+// A confirmação vale para esta quantidade: se mudar (outro N), pergunta-se de novo.
+const confirmada = ref(false)
+watch(
+  () => props.registros,
+  () => {
+    confirmada.value = false
+  },
+)
+
+const registrosFormatados = computed(() => props.registros?.toLocaleString('pt-BR') ?? '')
 </script>
 
 <template>
@@ -47,7 +77,17 @@ const alternar = () => {
     </button>
 
     <div v-if="aberto" class="conteudo">
-      <slot />
+      <AlertaAviso v-if="pesada && !confirmada" titulo="Lista muito grande">
+        Esta lista tem {{ registrosFormatados }} registros. Mostrá-los todos pode deixar a sua
+        máquina lenta, ou até travar a página por alguns instantes.
+        <template #acoes>
+          <button type="button" class="botao" @click="confirmada = true">
+            Mostrar mesmo assim
+          </button>
+          <button type="button" class="botao" @click="alternar">Fechar</button>
+        </template>
+      </AlertaAviso>
+      <slot v-else />
     </div>
   </section>
 </template>

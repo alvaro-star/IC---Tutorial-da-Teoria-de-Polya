@@ -16,6 +16,10 @@
   --accent-ink: #1f3f94;
   --accent-soft: #edf2fd;
   --on-accent: #ffffff;
+  --erro: #b4400f;
+  --aviso: #8a5a00;
+  --aviso-soft: #fdf5e3;
+  --aviso-line: #ecd29c;
 
   --font-sans:
     'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -57,6 +61,10 @@
     --accent-ink: #b5c6ff;
     --accent-soft: rgba(139, 167, 255, 0.12);
     --on-accent: #10131a;
+    --erro: #ff9b6b;
+    --aviso: #f3c46b;
+    --aviso-soft: rgba(243, 196, 107, 0.1);
+    --aviso-line: rgba(243, 196, 107, 0.35);
     --shadow: none;
 
     color-scheme: dark;

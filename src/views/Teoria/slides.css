@@ -1,0 +1,240 @@
+/*
+ * Estilos dos slides da Teoria. Não são `scoped` porque o conteúdo está
+ * dividido por vários componentes (components/Slides*.vue); cada regra fica
+ * debaixo de `.teoria`, a classe do <main> desta página, para não afetar as
+ * outras páginas.
+ */
+.teoria .texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+.teoria .texto ul,
+.teoria .texto ol {
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.teoria .texto h3 {
+  margin-top: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.teoria .texto > .math-tex {
+  display: block;
+}
+
+.teoria .colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.teoria figure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.teoria figcaption {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.teoria .enfase {
+  padding: 0.8rem 1.1rem;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-soft);
+}
+
+.teoria .nota {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* Enunciados (proposições, teoremas): caixa de livro-texto. */
+.teoria .enunciado {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface-sunken);
+}
+
+.teoria .enunciado.secundario {
+  border-left-color: var(--line-strong);
+  background: none;
+}
+
+.teoria .cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.teoria .cartao {
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.teoria .cartao.destaque {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.teoria .cartao h3 {
+  margin: 0 0 0.4rem;
+}
+
+.teoria .tabela {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+.teoria .tabela th,
+.teoria .tabela td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+
+.teoria .tabela th {
+  border-bottom-color: var(--line-strong);
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.teoria .tabela tfoot td {
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.teoria .algoritmo ol {
+  margin-top: 0.3rem;
+}
+
+.teoria .passos {
+  list-style: none;
+  padding-left: 0 !important;
+}
+
+.teoria .passos li {
+  min-width: 0;
+}
+
+.teoria .subtotal {
+  font-size: 0.95rem;
+}
+
+.teoria .resultado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.teoria .caixa {
+  padding: 0.35rem 0.8rem;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+}
+
+.teoria .capa {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.teoria .instituicao {
+  color: var(--ink-soft);
+}
+
+.teoria .ficha {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1.25rem;
+}
+
+.teoria .ficha dt {
+  color: var(--muted);
+}
+
+.teoria .dica-navegacao {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.teoria .barras {
+  list-style: none;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end;
+  gap: 0.5rem !important;
+  height: 12rem;
+}
+
+.teoria .barras li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.teoria .barra {
+  width: 100%;
+  max-width: 2.5rem;
+  border-radius: 4px 4px 0 0;
+  background: var(--accent);
+}
+
+.teoria .barra-valor,
+.teoria .barra-rotulo {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.teoria .legenda-barras {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.teoria .mini-grafos {
+  list-style: none;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem !important;
+}
+
+.teoria .titulo-ciclo {
+  margin-bottom: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.teoria .referencias li {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .teoria .colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

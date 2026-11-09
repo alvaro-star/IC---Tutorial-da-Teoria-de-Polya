@@ -10,7 +10,7 @@
  * Verificação: a soma de `quantidade` é 5! = 120, e substituir cada X_i por
  * 1 + c^i em Z(G) dá 1, 1, 2, 4, 6, 6, 6, 4, 2, 1, 1 (34 grafos).
  */
-import type { Ciclo } from '@/grafoDoCiclo'
+import type { Ciclo } from '@/combinatoria/grafoDoCiclo'
 
 export interface ExemploCalculo {
   /** A partição de 5, ex. "3+1+1". */

@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { gerarParticoesKPartes, type Particao } from '@/combinatoria/gerarParticoesKPartes'
+import { expandirPartes, gerarConfiguracoesUnicas, contarPartes } from '@/combinatoria/mathForms'
+import { contarPermutacoesDoTipo } from '@/combinatoria/contarPermutacoesDoTipo'
 import {
-  gerarParticoesKPartes,
-  expandirPartes,
-  gerarConfiguracoesUnicas,
   formatarParticao,
   formatarParticaoLatex,
   formatarSomaLatex,
-  contarPartes,
-  type Particao,
-} from '@/gerarParticoeskpartes'
-import { grafoDoCiclo, type Aresta } from '@/grafoDoCiclo'
+} from '@/combinatoria/formatadores'
+import { grafoDoCiclo, type Aresta } from '@/combinatoria/grafoDoCiclo'
 import MathTex from '@/components/MathTex.vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import PolyaGraph from '@/components/PolyaGraph.vue'
@@ -23,16 +21,18 @@ interface Configuracao {
   arestas: Aresta[]
 }
 
-/** Uma linha da lista: uma partição de N com tudo o que o template desenha. */
+/** Uma linha da lista: só o que o cabeçalho mostra — nada de permutações. */
 interface LinhaDaParticao {
-  /** Forma textual da partição, ex. "2^2 1^1" — serve de `:key`. */
+  /** Forma textual da partição, ex. "X_2^2 X_1^1" — serve de `:key` e de chave da cache. */
   chave: string
-  /** Cabeçalho em LaTeX: multiplicidades e soma, "2^{2} 1^{1} = 2 + 2 + 1". */
+  /** Cabeçalho em LaTeX: multiplicidades e soma. */
   titulo: string
   /** Quantas partes a partição tem (a soma das multiplicidades). */
   numeroDePartes: number
-  /** Permutações distintas com este tipo cíclico, cada uma com o seu grafo. */
-  configuracoes: Configuracao[]
+  /** Quantas permutações têm este tipo cíclico, pela fórmula (sem gerá-las). */
+  quantidade: bigint
+  /** O tipo cíclico, ex. [2, 2, 1] — o que gera as configurações ao abrir. */
+  tipoCiclico: number[]
 }
 
 const props = defineProps<{ N: number }>()
@@ -42,25 +42,41 @@ const n = computed(() => Math.max(0, Math.floor(props.N)))
 // Sem restrição no número de partes: k = n gera todas as partições de n.
 const particoes = computed(() => (n.value < 1 ? [] : gerarParticoesKPartes(n.value, n.value)))
 
-/**
- * Traduz uma partição na linha correspondente. A partição expandida
- * (`ParicionExpanded`) é o tipo cíclico que gera as configurações.
- */
-const construirLinha = (particao: Particao): LinhaDaParticao => {
-  const tipoCiclico = expandirPartes(particao)
+const construirLinha = (particao: Particao): LinhaDaParticao => ({
+  chave: formatarParticao(particao),
+  titulo: `${formatarParticaoLatex(particao)} \\;=\\; ${formatarSomaLatex(particao)}`,
+  numeroDePartes: contarPartes(particao),
+  quantidade: contarPermutacoesDoTipo(particao),
+  tipoCiclico: expandirPartes(particao),
+})
 
-  return {
-    chave: formatarParticao(particao),
-    titulo: `${formatarParticaoLatex(particao)} \\;=\\; ${formatarSomaLatex(particao)}`,
-    numeroDePartes: contarPartes(particao),
-    configuracoes: gerarConfiguracoesUnicas(n.value, tipoCiclico).map((texto) => ({
+// Barato: só as p(n) partições e uma fórmula por linha.
+const linhas = computed(() => particoes.value.map(construirLinha))
+
+/*
+ * As configurações (permutações + arestas) só são geradas quando a linha é
+ * aberta: o slot do CollapsibleSection só é avaliado com a linha aberta, e é
+ * aí que `configuracoesDe` é chamada. A cache evita regerar ao fechar e
+ * reabrir; não é reativa de propósito (escrever nela durante o render não
+ * pode disparar outro render) e é esvaziada quando N muda.
+ */
+const cache = new Map<string, Configuracao[]>()
+watch(n, () => cache.clear())
+
+const configuracoesDe = (linha: LinhaDaParticao): Configuracao[] => {
+  let configuracoes = cache.get(linha.chave)
+  if (configuracoes === undefined) {
+    configuracoes = gerarConfiguracoesUnicas(n.value, linha.tipoCiclico).map((texto) => ({
       texto,
       arestas: grafoDoCiclo(texto).arestas,
-    })),
+    }))
+    cache.set(linha.chave, configuracoes)
   }
+  return configuracoes
 }
 
-const linhas = computed(() => particoes.value.map(construirLinha))
+const rotuloQuantidade = (quantidade: bigint) =>
+  `${quantidade.toLocaleString('pt-BR')} ${quantidade === 1n ? 'configuração' : 'configurações'}`
 </script>
 
 <template>
@@ -75,7 +91,8 @@ const linhas = computed(() => particoes.value.map(construirLinha))
       :key="linha.chave"
       compacta
       :aberta="false"
-      :dica="`${linha.numeroDePartes} partes · ${linha.configuracoes.length} configurações`"
+      :dica="`${linha.numeroDePartes} partes · ${rotuloQuantidade(linha.quantidade)}`"
+      :registros="linha.quantidade"
     >
       <template #titulo>
         <MathTex :expr="linha.titulo" />
@@ -83,7 +100,7 @@ const linhas = computed(() => particoes.value.map(construirLinha))
 
       <ul class="configuracoes">
         <li
-          v-for="configuracao in linha.configuracoes"
+          v-for="configuracao in configuracoesDe(linha)"
           :key="configuracao.texto"
           class="configuracao"
         >
