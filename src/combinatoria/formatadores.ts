@@ -99,3 +99,60 @@ export const formatarImagensDaArestaLatex = (
   [i, j]: readonly [number, number],
   imagens: readonly [number, number],
 ): string => String.raw`\{\sigma(${i}),\,\sigma(${j})\} = ${formatarArestaLatex(imagens)}`
+
+/**
+ * Um termo de Z(G): N(λ) seguido de T(σ*), sem o 1 quando N(λ) = 1.
+ * Ex.: (24n, [[5, 2]]) -> `"24X_5^{2}"`; (1n, [[1, 10]]) -> `"X_1^{10}"`.
+ */
+export const formatarTermoDoIndiceLatex = (
+  quantidade: bigint,
+  tipo: [number, number][],
+): string => {
+  const monomio = formatarTipoCiclicoLatex(tipo)
+  if (monomio === '1') return quantidade.toString()
+  return `${quantidade === 1n ? '' : quantidade}${monomio}`
+}
+
+/**
+ * O mesmo termo depois da substituição de Pólya X_i -> 1 + c^i.
+ * Ex.: (24n, [[5, 2]]) -> `"24(1+c^{5})^{2}"`; (10n, [[1, 4], [2, 3]]) ->
+ * `"10(1+c)^{4}(1+c^{2})^{3}"`.
+ */
+export const formatarSubstituicaoLatex = (quantidade: bigint, tipo: [number, number][]): string => {
+  const fatores = tipo
+    .map(([comprimento, vezes]) => {
+      const base = comprimento === 1 ? '(1+c)' : `(1+c^{${comprimento}})`
+      return vezes === 1 ? base : `${base}^{${vezes}}`
+    })
+    .join('')
+  if (fatores === '') return quantidade.toString()
+  return `${quantidade === 1n ? '' : quantidade}${fatores}`
+}
+
+/** Os termos não nulos de um polinómio em c: [1n, 0n, 2n] -> ["1", "2c^{2}"]. */
+export const termosDoPolinomioLatex = (coeficientes: readonly bigint[]): string[] =>
+  coeficientes.flatMap((coeficiente, k) => {
+    if (coeficiente === 0n) return []
+    const potencia = k === 0 ? '' : k === 1 ? 'c' : `c^{${k}}`
+    const numero = coeficiente === 1n && k > 0 ? '' : coeficiente.toString()
+    return [`${numero}${potencia}`]
+  })
+
+/**
+ * Uma soma longa em várias linhas alinhadas (`aligned` do KaTeX), com
+ * `porLinha` parcelas em cada uma: `inicio` vem antes da primeira e `fim`
+ * depois da última. Sem parcelas, escreve 0.
+ */
+export const formatarSomaEmLinhasLatex = (
+  inicio: string,
+  parcelas: string[],
+  porLinha: number,
+  fim = '',
+): string => {
+  if (parcelas.length === 0) return `${inicio} 0${fim}`
+  const linhas: string[] = []
+  for (let i = 0; i < parcelas.length; i += porLinha) {
+    linhas.push(parcelas.slice(i, i + porLinha).join(' + '))
+  }
+  return String.raw`\begin{aligned} ${inicio} &${linhas.join(String.raw` \\ &+ `)}${fim} \end{aligned}`
+}

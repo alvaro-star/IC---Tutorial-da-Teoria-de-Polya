@@ -6,6 +6,7 @@ import PartitionDisplay from './components/PartitionDisplay.vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import AcaoInduzida from './components/AcaoInduzida.vue'
 import InducedPartitionDisplay from './components/InducedPartitionDisplay.vue'
+import InventarioPolya from './components/InventarioPolya.vue'
 import { computed, ref } from 'vue'
 import { contarParticoes } from '@/combinatoria/contarParticoes'
 
@@ -107,6 +108,15 @@ const apply = () => {
       :registros="numeroDeParticoes"
     >
       <InducedPartitionDisplay :N="N" />
+    </CollapsibleSection>
+
+    <CollapsibleSection
+      :numero="6"
+      titulo="De Z(G) ao inventário p(c)"
+      dica="X_i ↦ 1 + c^i"
+      :registros="numeroDeParticoes"
+    >
+      <InventarioPolya :N="N" />
     </CollapsibleSection>
   </main>
 </template>

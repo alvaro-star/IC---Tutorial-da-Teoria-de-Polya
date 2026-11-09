@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import AcaoInduzida from '../components/AcaoInduzida.vue'
 import InducedPartitionDisplay from '../components/InducedPartitionDisplay.vue'
+import InventarioPolya from '../components/InventarioPolya.vue'
 import SubsetDisplay from '../components/SubsetDisplay.vue'
 
 // `katex-error` é a classe que o KaTeX põe numa expressão que não conseguiu ler.
@@ -72,5 +73,39 @@ describe('InducedPartitionDisplay', () => {
     expect(w.find('.explicacao').exists()).toBe(true)
     expect(w.find('[role=alert]').text()).toContain('40.320')
     expect(w.findAll('.configuracao')).toHaveLength(0)
+  })
+})
+
+describe('InventarioPolya', () => {
+  it('renderiza Z(G) -> p(c) sem erros de LaTeX', () => {
+    for (const N of [1, 2, 3, 5, 8]) {
+      const w = mount(InventarioPolya, { props: { N } })
+      expect(w.html(), `N=${N}`).not.toContain('katex-error')
+    }
+  })
+
+  it('mostra os 34 grafos de N = 5, com uma barra por número de arestas', () => {
+    const w = mount(InventarioPolya, { props: { N: 5 } })
+    expect(w.findAll('.barras li')).toHaveLength(11)
+    expect(w.findAll('.barra-valor').map((b) => b.text())).toEqual([
+      '1',
+      '1',
+      '2',
+      '4',
+      '6',
+      '6',
+      '6',
+      '4',
+      '2',
+      '1',
+      '1',
+    ])
+    expect(w.find('.caixa').text()).toContain('34')
+  })
+
+  it('escreve o total grande com espaço fino entre os milhares', () => {
+    const w = mount(InventarioPolya, { props: { N: 8 } })
+    expect(w.find('.caixa').text()).toContain('12346')
+    expect(w.find('.caixa').html()).not.toContain('katex-error')
   })
 })
